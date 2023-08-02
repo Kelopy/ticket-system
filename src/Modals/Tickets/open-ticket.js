@@ -21,6 +21,12 @@ module.exports = {
   async execute(interaction) {
     const { guild, user, member, channel } = interaction;
 
+    let setupData = await database.findOne({ GuildID: guild.id });
+    if (!setupData) return;
+
+    const support_role = guild.roles.cache.get(setupData.SupportRoleID);
+    if (!support_role) return;
+
     const reason = interaction.fields.getTextInputValue("reason-text");
 
     let ticketData = await tktdatabase.findOne({
@@ -41,9 +47,6 @@ module.exports = {
         ticket.save();
       }
     }
-
-    let setupData = await database.findOne({ GuildID: guild.id });
-    const support_role = guild.roles.cache.get(setupData.SupportRoleID);
 
     let tickets_category = guild.channels.cache.find(
       (c) => c.type == ChannelType.GuildCategory && c.name == "Tickets"
